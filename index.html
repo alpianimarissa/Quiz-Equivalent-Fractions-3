@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equivalent Fractions Interactive Quiz - 30 Questions</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        display: ['Fredoka', 'cursive'],
+                    },
+                    colors: {
+                        pyp: {
+                            blue: '#0284c7',
+                            teal: '#0d9488',
+                            orange: '#f97316',
+                            purple: '#8b5cf6',
+                            yellow: '#eab308',
+                            bg: '#f8fafc'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-display { font-family: 'Fredoka', cursive; }
+        
+        /* Typography for Fractions */
+        .frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+            margin: 0 0.25em;
+            line-height: 1.0;
+            font-size: 0.95em;
+        }
+        .frac > .top {
+            border-bottom: 2px solid currentColor;
+            padding: 0 0.25em 0.1em 0.25em;
+            text-align: center;
+            width: 100%;
+            display: block;
+        }
+        .frac > .bottom {
+            padding: 0.1em 0.25em 0 0.25em;
+            text-align: center;
+            width: 100%;
+            display: block;
+        }
+
+        /* Custom Scrollbar for palette */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-teal-400 flex items-center justify-center text-white shadow-md shadow-sky-500/20 font-display text-lg font-bold">
+                    <span class="frac text-xs"><span class="top">3</span><span class="bottom">4</span></span>
+                </div>
+                <div>
+                    <h1 class="font-display text-lg font-bold text-slate-900 leading-tight">Equivalent Fractions Mastery</h1>
+                    <p class="text-xs text-sky-600 font-semibold uppercase tracking-wider">30 Interactive Challenge Questions</p>
+                </div>
+            </div>
+
+            <!-- Header Stats Badges -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <div class="hidden sm:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700">
+                    <i class="fa-solid fa-list-check text-sky-600"></i>
+                    <span>Progress: <span id="header-progress-text" class="text-sky-600 font-mono">0/30</span></span>
+                </div>
+
+                <div class="flex items-center gap-2 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 text-xs font-bold text-amber-800">
+                    <i class="fa-solid fa-star text-amber-500"></i>
+                    <span>Score: <span id="header-score-text" class="text-amber-600 font-mono">0</span></span>
+                </div>
+
+                <button onclick="confirmResetQuiz()" class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span class="hidden md:inline">Reset Quiz</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col lg:flex-row gap-6">
+
+        <!-- Left Column: Current Question Card -->
+        <section class="flex-1 space-y-4">
+            
+            <!-- Progress Bar -->
+            <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-2">
+                <div class="flex justify-between items-center text-xs font-bold">
+                    <span class="text-slate-600 flex items-center gap-1.5">
+                        <i class="fa-solid fa-compass text-sky-500"></i>
+                        Question <span id="q-num-display" class="text-sky-600 font-mono text-sm">1</span> of 30
+                    </span>
+                    <span id="q-category-badge" class="px-2.5 py-1 rounded-md bg-sky-100 text-sky-800 text-[11px] font-bold uppercase tracking-wider">
+                        Category
+                    </span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-sky-500 to-teal-400 transition-all duration-300" style="width: 3.33%;"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-md space-y-6 relative overflow-hidden">
+                
+                <!-- Bookmark Button Top Right -->
+                <button onclick="toggleBookmarkCurrent()" id="btn-bookmark" class="absolute top-6 right-6 w-9 h-9 rounded-full bg-slate-100 hover:bg-amber-100 text-slate-400 hover:text-amber-500 flex items-center justify-center transition border border-slate-200" title="Bookmark Question">
+                    <i class="fa-solid fa-bookmark"></i>
+                </button>
+
+                <!-- Question Title / Prompt -->
+                <div class="pr-10 space-y-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Question Prompt</span>
+                    <h2 id="q-text" class="font-display text-lg sm:text-2xl font-bold text-slate-900 leading-snug">
+                        <!-- Dynamic Question Text -->
+                    </h2>
+                </div>
+
+                <!-- Answer Choices (Options A, B, C, D) -->
+                <div id="options-container" class="grid grid-cols-1 gap-3 pt-2">
+                    <!-- Dynamic Answer Options -->
+                </div>
+
+                <!-- Instant Feedback Banner -->
+                <div id="feedback-box" class="hidden p-4 sm:p-5 rounded-2xl border text-sm transition-all space-y-2">
+                    <div class="flex items-center gap-2 font-display text-base font-bold" id="feedback-title">
+                        <!-- Dynamic Title -->
+                    </div>
+                    <p id="feedback-rationale" class="text-xs sm:text-sm leading-relaxed">
+                        <!-- Dynamic Rationale -->
+                    </p>
+                </div>
+
+                <!-- Navigation Action Buttons (Prev / Next) -->
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
+                    <button onclick="navigateQuestion(-1)" id="btn-prev" class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
+                        <i class="fa-solid fa-arrow-left"></i> Previous
+                    </button>
+
+                    <span class="text-xs text-slate-400 font-semibold hidden sm:inline">
+                        Use navigation palette to jump anytime
+                    </span>
+
+                    <button onclick="navigateQuestion(1)" id="btn-next" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold transition flex items-center gap-2 shadow-md shadow-sky-600/20 disabled:opacity-40 disabled:cursor-not-allowed">
+                        Next <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- Right Column: Navigation Palette & Filter -->
+        <aside class="w-full lg:w-80 space-y-4">
+            
+            <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-md space-y-4">
+                
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="font-display text-base font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-grid-2 text-sky-500"></i>
+                        Question Palette
+                    </h3>
+                    <span id="answered-count-badge" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+                        0/30
+                    </span>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="grid grid-cols-4 gap-1 p-1 bg-slate-100 rounded-xl text-[11px] font-bold">
+                    <button onclick="setPaletteFilter('all')" id="filter-all" class="py-1.5 rounded-lg bg-white text-sky-600 shadow-xs transition">All</button>
+                    <button onclick="setPaletteFilter('answered')" id="filter-answered" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Filled</button>
+                    <button onclick="setPaletteFilter('unanswered')" id="filter-unanswered" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">Empty</button>
+                    <button onclick="setPaletteFilter('bookmarked')" id="filter-bookmarked" class="py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition">⭐</button>
+                </div>
+
+                <!-- 30 Button Grid -->
+                <div id="palette-grid" class="grid grid-cols-5 gap-2 max-h-80 overflow-y-auto custom-scrollbar p-1">
+                    <!-- Dynamic Grid Items (1 to 30) -->
+                </div>
+
+                <!-- Legend -->
+                <div class="pt-3 border-t border-slate-100 space-y-2 text-[11px] font-medium text-slate-500">
+                    <span class="block font-bold text-slate-700 uppercase tracking-wider text-[10px]">Status Legend:</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Correct
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Incorrect
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-slate-200 border border-slate-300 inline-block"></span> Unanswered
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-3 h-3 rounded-full bg-amber-400 inline-block"></span> Bookmarked
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Quiz Summary Card -->
+            <div class="bg-gradient-to-br from-slate-900 to-sky-950 text-white rounded-3xl p-5 shadow-lg space-y-3">
+                <h4 class="font-display text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-chart-pie text-teal-400"></i>
+                    Performance Breakdown
+                </h4>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-white/10 rounded-xl p-2.5 border border-white/10 text-center">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Accuracy</span>
+                        <span id="stat-accuracy" class="font-display text-lg font-bold text-teal-300">0%</span>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-2.5 border border-white/10 text-center">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold">Correct</span>
+                        <span id="stat-correct" class="font-display text-lg font-bold text-emerald-400">0</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-8 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Equivalent Fractions Interactive Assessment — 30 Questions with Real-Time Persistence.</p>
+        </div>
+    </footer>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // --- Helper Function to Render Fraction HTML ---
+        function frac(top, bottom) {
+            return `<span class="frac"><span class="top">${top}</span><span class="bottom">${bottom}</span></span>`;
+        }
+
+        // --- 30 QUESTIONS DATABASE ---
+        // Answer distribution carefully balanced across choices:
+        // A (0): 8 questions | B (1): 7 questions | C (2): 8 questions | D (3): 7 questions
+        const questionsDB = [
+            {
+                id: 1,
+                category: "Missing Value",
+                question: `Find the missing numerator to complete the equivalent fraction: ${frac(3, 5)} = ${frac('?', 20)}`,
+                options: [
+                    `9`,
+                    `12`,
+                    `15`,
+                    `10`
+                ],
+                correctIndex: 1, // B
+                rationale: `Both the numerator and denominator are multiplied by 4 (${frac('5 × 4', '')} = 20, so ${frac('3 × 4', '')} = 12). Thus, ${frac(3, 5)} = ${frac(12, 20)}.`
+            },
+            {
+                id: 2,
+                category: "Simplification",
+                question: `What is the fraction ${frac(18, 24)} in its simplest form (lowest terms)?`,
+                options: [
+                    `${frac(2, 3)}`,
+                    `${frac(4, 5)}`,
+                    `${frac(6, 8)}`,
+                    `${frac(3, 4)}`
+                ],
+                correctIndex: 3, // D
+                rationale: `The Highest Common Factor (HCF) of 18 and 24 is 6. Divide both by 6: 18 ÷ 6 = 3 and 24 ÷ 6 = 4, yielding ${frac(3, 4)}.`
+            },
+            {
+                id: 3,
+                category: "Concept Verification",
+                question: `Which of the following fractions is equivalent to ${frac(2, 3)}?`,
+                options: [
+                    `${frac(10, 15)}`,
+                    `${frac(8, 15)}`,
+                    `${frac(6, 12)}`,
+                    `${frac(4, 9)}`
+                ],
+                correctIndex: 0, // A
+                rationale: `Multiplying both numerator and denominator of ${frac(2, 3)} by 5 gives ${frac('2 × 5', '3 × 5')} = ${frac(10, 15)}.`
+            },
+            {
+                id: 4,
+                category: "Word Problem",
+                question: `Maya ate ${frac(2, 8)} of a pizza, while Liam ate ${frac(1, 4)} of an identical pizza. Who ate more pizza?`,
+                options: [
+                    `Maya ate more because 8 is larger than 4.`,
+                    `Liam ate more because 1/4 has a smaller denominator.`,
+                    `They both ate the exact same amount.`,
+                    `Maya ate twice as much as Liam.`
+                ],
+                correctIndex: 2, // C
+                rationale: `${frac(2, 8)} simplifies to ${frac(1, 4)} when both numerator and denominator are divided by 2. Therefore, ${frac(2, 8)} = ${frac(1, 4)}.`
+            },
+            {
+                id: 5,
+                category: "Non-Equivalent",
+                question: `Which fraction is <strong>NOT</strong> equivalent to ${frac(4, 6)}?`,
+                options: [
+                    `${frac(2, 3)}`,
+                    `${frac(6, 8)}`,
+                    `${frac(8, 12)}`,
+                    `${frac(12, 18)}`
+                ],
+                correctIndex: 1, // B
+                rationale: `${frac(4, 6)} simplifies to ${frac(2, 3)}. ${frac(6, 8)} simplifies to ${frac(3, 4)}, which is NOT equal to ${frac(2, 3)}.`
+            },
+            {
+                id: 6,
+                category: "Missing Denominator",
+                question: `Complete the equivalent fraction pair: ${frac(4, 7)} = ${frac(16, '?')}`,
+                options: [
+                    `28`,
+                    `21`,
+                    `32`,
+                    `24`
+                ],
+                correctIndex: 0, // A
+                rationale: `The numerator is multiplied by 4 (4 × 4 = 16). Multiply the denominator by 4 as well: 7 × 4 = 28.`
+            },
+            {
+                id: 7,
+                category: "Real-World Inquiry",
+                question: `In a school garden, ${frac(6, 10)} of a plot is planted with sunflowers. Which group planted an equivalent fraction of their plot?`,
+                options: [
+                    `Group A: ${frac(3, 10)}`,
+                    `Group B: ${frac(12, 15)}`,
+                    `Group C: ${frac(5, 8)}`,
+                    `Group D: ${frac(9, 15)}`
+                ],
+                correctIndex: 3, // D
+                rationale: `${frac(6, 10)} simplifies to ${frac(3, 5)} (divide by 2). ${frac(9, 15)} also simplifies to ${frac(3, 5)} (divide by 3).`
+            },
+            {
+                id: 8,
+                category: "Highest Common Factor",
+                question: `What is the Highest Common Factor (HCF) needed to simplify ${frac(15, 35)} to its lowest terms?`,
+                options: [
+                    `3`,
+                    `10`,
+                    `5`,
+                    `15`
+                ],
+                correctIndex: 2, // C
+                rationale: `The factors of 15 are [1, 3, 5, 15] and factors of 35 are [1, 5, 7, 35]. Their highest common factor is 5, giving ${frac(3, 7)}.`
+            },
+            {
+                id: 9,
+                category: "Scaling Fractions",
+                question: `If you scale up ${frac(5, 8)} by multiplying both numerator and denominator by 6, what equivalent fraction do you get?`,
+                options: [
+                    `${frac(30, 48)}`,
+                    `${frac(25, 48)}`,
+                    `${frac(30, 40)}`,
+                    `${frac(11, 14)}`
+                ],
+                correctIndex: 0, // A
+                rationale: `5 × 6 = 30 and 8 × 6 = 48, so the resulting equivalent fraction is ${frac(30, 48)}.`
+            },
+            {
+                id: 10,
+                category: "Fraction Reasoning",
+                question: `Ben claims that ${frac(3, 4)} is equivalent to ${frac(9, 16)} because 3 × 3 = 9 and 4 + 12 = 16. Is Ben correct?`,
+                options: [
+                    `Yes, because 9 and 16 are both larger numbers.`,
+                    `No, because you must MULTIPLY both top and bottom by the SAME number.`,
+                    `Yes, because 3/4 equals 9/16.`,
+                    `No, because 3/4 can only be simplified, not expanded.`
+                ],
+                correctIndex: 1, // B
+                rationale: `The golden rule requires multiplying or dividing top and bottom by the SAME multiplier. Multiplying 4 by 3 gives 12, so ${frac(3, 4)} = ${frac(12, 16)}.`
+            },
+            {
+                id: 11,
+                category: "Simplification",
+                question: `Simplify the fraction ${frac(14, 42)} to its lowest terms.`,
+                options: [
+                    `${frac(2, 6)}`,
+                    `${frac(7, 21)}`,
+                    `${frac(1, 4)}`,
+                    `${frac(1, 3)}`
+                ],
+                correctIndex: 3, // D
+                rationale: `The HCF of 14 and 42 is 14. Divide numerator and denominator by 14: 14 ÷ 14 = 1 and 42 ÷ 14 = 3, giving ${frac(1, 3)}.`
+            },
+            {
+                id: 12,
+                category: "Word Problem",
+                question: `Sophia solved 15 out of 20 math problems. Noah solved 9 out of 12 problems. Did they solve an equivalent fraction of their problems?`,
+                options: [
+                    `No, because 15 is greater than 9.`,
+                    `No, because the total number of problems was different.`,
+                    `Yes, both solved ${frac(3, 4)} of their problems.`,
+                    `Yes, both solved ${frac(4, 5)} of their problems.`
+                ],
+                correctIndex: 2, // C
+                rationale: `${frac(15, 20)} simplifies to ${frac(3, 4)} (divided by 5), and ${frac(9, 12)} simplifies to ${frac(3, 4)} (divided by 3). Both solved 3/4.`
+            },
+            {
+                id: 13,
+                category: "Missing Value",
+                question: `Find the value of $n$ in the equation: ${frac('n', 9)} = ${frac(20, 36)}`,
+                options: [
+                    `5`,
+                    `4`,
+                    `6`,
+                    `8`
+                ],
+                correctIndex: 0, // A
+                rationale: `Compare the denominators: 36 ÷ 9 = 4. Divide 20 by 4 to find $n$: 20 ÷ 4 = 5.`
+            },
+            {
+                id: 14,
+                category: "Equivalent Sets",
+                question: `Which set contains ONLY fractions that are equivalent to ${frac(1, 2)}?`,
+                options: [
+                    `${frac(2, 4)}, ${frac(3, 6)}, ${frac(4, 9)}`,
+                    `${frac(4, 8)}, ${frac(6, 12)}, ${frac(10, 20)}`,
+                    `${frac(3, 6)}, ${frac(5, 10)}, ${frac(7, 12)}`,
+                    `${frac(2, 4)}, ${frac(5, 8)}, ${frac(8, 16)}`
+                ],
+                correctIndex: 1, // B
+                rationale: `${frac(4, 8)} = 0.5, ${frac(6, 12)} = 0.5, and ${frac(10, 20)} = 0.5. All three fractions simplify directly to ${frac(1, 2)}.`
+            },
+            {
+                id: 15,
+                category: "Real-World Inquiry",
+                question: `A recipe calls for ${frac(2, 3)} cup of sugar. Chef Leo wants to double the recipe. Which fraction represents the new amount of sugar needed?`,
+                options: [
+                    `${frac(4, 6)} cup`,
+                    `${frac(2, 6)} cup`,
+                    `${frac(3, 4)} cup`,
+                    `${frac(4, 3)} cups (or 1 ${frac(1, 3)})`
+                ],
+                correctIndex: 3, // D
+                rationale: `Doubling means multiplying the numerator by 2: ${frac(2, 3)} × 2 = ${frac(4, 3)}. Note that ${frac(4, 6)} is an equivalent fraction of the same single batch, not double!`
+            },
+            {
+                id: 16,
+                category: "Simplification",
+                question: `What is the fraction ${frac(24, 36)} reduced to its lowest terms?`,
+                options: [
+                    `${frac(3, 4)}`,
+                    `${frac(4, 6)}`,
+                    `${frac(2, 3)}`,
+                    `${frac(1, 2)}`
+                ],
+                correctIndex: 2, // C
+                rationale: `The Highest Common Factor of 24 and 36 is 12. 24 ÷ 12 = 2 and 36 ÷ 12 = 3, yielding ${frac(2, 3)}.`
+            },
+            {
+                id: 17,
+                category: "Non-Equivalent",
+                question: `Which fraction is <strong>NOT</strong> equivalent to ${frac(3, 8)}?`,
+                options: [
+                    `${frac(9, 16)}`,
+                    `${frac(6, 16)}`,
+                    `${frac(12, 32)}`,
+                    `${frac(15, 40)}`
+                ],
+                correctIndex: 0, // A
+                rationale: `${frac(6, 16)} = ${frac(3, 8)}, ${frac(12, 32)} = ${frac(3, 8)}, and ${frac(15, 40)} = ${frac(3, 8)}. However, ${frac(9, 16)} is greater than ${frac(3, 8)}.`
+            },
+            {
+                id: 18,
+                category: "Missing Value",
+                question: `Complete the equivalent fraction statement: ${frac(5, 6)} = ${frac('?', 30)}`,
+                options: [
+                    `20`,
+                    `24`,
+                    `28`,
+                    `25`
+                ],
+                correctIndex: 3, // D
+                rationale: `The denominator is multiplied by 5 (6 × 5 = 30). Multiply the numerator by 5 as well: 5 × 5 = 25.`
+            },
+            {
+                id: 19,
+                category: "Fraction Reasoning",
+                question: `Why is ${frac(8, 12)} equivalent to ${frac(2, 3)}?`,
+                options: [
+                    `Because subtracting 6 from 8 and 9 from 12 gives 2/3.`,
+                    `Because dividing both 8 and 12 by the common factor 4 yields 2 and 3.`,
+                    `Because 8 + 12 = 20 and 2 + 3 = 5.`,
+                    `Because both fractions have numbers less than 15.`
+                ],
+                correctIndex: 1, // B
+                rationale: `Dividing both numerator (8 ÷ 4 = 2) and denominator (12 ÷ 4 = 3) by 4 proves their mathematical equivalence.`
+            },
+            {
+                id: 20,
+                category: "Area Model Visual",
+                question: `A grid is divided into 16 equal squares. How many squares must be shaded to represent a fraction equivalent to ${frac(3, 4)}?`,
+                options: [
+                    `9 squares`,
+                    `10 squares`,
+                    `12 squares`,
+                    `14 squares`
+                ],
+                correctIndex: 2, // C
+                rationale: `${frac(3, 4)} = ${frac('?', 16)}. Since 4 × 4 = 16, multiply 3 by 4 to get 12 squares.`
+            },
+            {
+                id: 21,
+                category: "Simplification",
+                question: `Reduce the fraction ${frac(25, 100)} to its simplest form.`,
+                options: [
+                    `${frac(1, 4)}`,
+                    `${frac(1, 5)}`,
+                    `${frac(2, 5)}`,
+                    `${frac(5, 20)}`
+                ],
+                correctIndex: 0, // A
+                rationale: `The HCF of 25 and 100 is 25. 25 ÷ 25 = 1 and 100 ÷ 25 = 4, giving ${frac(1, 4)}.`
+            },
+            {
+                id: 22,
+                category: "Word Problem",
+                question: `Emma walked ${frac(4, 10)} km to school. Alex walked ${frac(8, 20)} km. Who walked a greater distance?`,
+                options: [
+                    `Alex, because 8 and 20 are larger numbers.`,
+                    `Emma, because tenths are larger than twentieths.`,
+                    `Alex, because he walked double the distance.`,
+                    `They both walked the exact same distance.`
+                ],
+                correctIndex: 3, // D
+                rationale: `${frac(8, 20)} simplifies to ${frac(4, 10)} by dividing top and bottom by 2. Both distances are equal.`
+            },
+            {
+                id: 23,
+                category: "Missing Denominator",
+                question: `Find the missing denominator: ${frac(7, 9)} = ${frac(42, '?')}`,
+                options: [
+                    `48`,
+                    `54`,
+                    `63`,
+                    `45`
+                ],
+                correctIndex: 1, // B
+                rationale: `The numerator is multiplied by 6 (7 × 6 = 42). Multiply denominator by 6: 9 × 6 = 54.`
+            },
+            {
+                id: 24,
+                category: "Equivalent Pairs",
+                question: `Which pair of fractions is <strong>NOT</strong> equivalent?`,
+                options: [
+                    `${frac(2, 5)} and ${frac(6, 15)}`,
+                    `${frac(3, 7)} and ${frac(12, 28)}`,
+                    `${frac(4, 9)} and ${frac(12, 25)}`,
+                    `${frac(5, 8)} and ${frac(20, 32)}`
+                ],
+                correctIndex: 2, // C
+                rationale: `${frac(4 × 3, 9 × 3)} = ${frac(12, 27)}. Therefore, ${frac(4, 9)} is NOT equivalent to ${frac(12, 25)}.`
+            },
+            {
+                id: 25,
+                category: "Simplification",
+                question: `Simplify ${frac(16, 40)} to its lowest terms.`,
+                options: [
+                    `${frac(2, 5)}`,
+                    `${frac(4, 10)}`,
+                    `${frac(1, 3)}`,
+                    `${frac(3, 8)}`
+                ],
+                correctIndex: 0, // A
+                rationale: `The HCF of 16 and 40 is 8. Divide 16 by 8 = 2, and 40 by 8 = 5, giving ${frac(2, 5)}.`
+            },
+            {
+                id: 26,
+                category: "Scaling Fractions",
+                question: `Multiply both numerator and denominator of ${frac(3, 11)} by 4. What is the resulting equivalent fraction?`,
+                options: [
+                    `${frac(12, 33)}`,
+                    `${frac(7, 15)}`,
+                    `${frac(12, 44)}`,
+                    `${frac(9, 44)}`
+                ],
+                correctIndex: 2, // C
+                rationale: `3 × 4 = 12 and 11 × 4 = 44, resulting in ${frac(12, 44)}.`
+            },
+            {
+                id: 27,
+                category: "Word Problem",
+                question: `In a fruit basket of 24 fruits, ${frac(8, 24)} are apples. Which simplified fraction represents the apples?`,
+                options: [
+                    `${frac(1, 2)}`,
+                    `${frac(1, 3)}`,
+                    `${frac(1, 4)}`,
+                    `${frac(2, 5)}`
+                ],
+                correctIndex: 1, // B
+                rationale: `The HCF of 8 and 24 is 8. 8 ÷ 8 = 1 and 24 ÷ 8 = 3, so ${frac(1, 3)} of the fruit basket is apples.`
+            },
+            {
+                id: 28,
+                category: "Missing Value",
+                question: `Solve for $x$: ${frac(9, 12)} = ${frac('x', 4)}`,
+                options: [
+                    `1`,
+                    `2`,
+                    `4`,
+                    `3`
+                ],
+                correctIndex: 3, // D
+                rationale: `Compare denominators: 12 ÷ 3 = 4. Divide numerator by 3: 9 ÷ 3 = 3, so $x = 3$.`
+            },
+            {
+                id: 29,
+                category: "Real-World Inquiry",
+                question: `A pitcher is ${frac(6, 8)} full of lemonade. Which fraction also represents how full the pitcher is?`,
+                options: [
+                    `${frac(9, 12)}`,
+                    `${frac(4, 6)}`,
+                    `${frac(5, 8)}`,
+                    `${frac(10, 16)}`
+                ],
+                correctIndex: 0, // A
+                rationale: `${frac(6, 8)} simplifies to ${frac(3, 4)} (divide by 2). ${frac(9, 12)} also simplifies to ${frac(3, 4)} (divide by 3).`
+            },
+            {
+                id: 30,
+                category: "Concept Verification",
+                question: `Which statement best describes what happens when you make an equivalent fraction by multiplying top and bottom by 3?`,
+                options: [
+                    `The total value of the fraction triples.`,
+                    `The number of pieces decreases, but each piece gets larger.`,
+                    `The whole is divided into 3 times as many smaller parts, but the overall quantity remains equal.`,
+                    `The fraction becomes an improper fraction.`
+                ],
+                correctIndex: 2, // C
+                rationale: `Scaling top and bottom by 3 splits each part into 3 smaller pieces without altering the total amount represented.`
+            }
+        ];
+
+        // --- STATE MANAGEMENT & LOCAL STORAGE PERSISTENCE ---
+        const STORAGE_KEY = 'eq_fractions_quiz_v1';
+
+        let appState = {
+            currentIndex: 0,
+            answers: {},    // { qIndex: { selectedIndex, isCorrect, timestamp } }
+            bookmarks: [],  // [ qIndex, ... ]
+            filter: 'all'   // 'all', 'answered', 'unanswered', 'bookmarked'
+        };
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    appState = { ...appState, ...parsed };
+                }
+            } catch (e) {
+                console.error("Failed to load state from localStorage", e);
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.error("Failed to save state to localStorage", e);
+            }
+        }
+
+        function confirmResetQuiz() {
+            if (confirm("Are you sure you want to reset all quiz progress? Your answers will be cleared.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                appState = {
+                    currentIndex: 0,
+                    answers: {},
+                    bookmarks: [],
+                    filter: 'all'
+                };
+                renderAll();
+            }
+        }
+
+        // --- RENDER LOGIC ---
+        function renderAll() {
+            renderHeaderStats();
+            renderQuestionCard();
+            renderPalette();
+        }
+
+        function renderHeaderStats() {
+            const totalQuestions = questionsDB.length;
+            const answeredKeys = Object.keys(appState.answers);
+            const answeredCount = answeredKeys.length;
+            
+            let correctCount = 0;
+            answeredKeys.forEach(k => {
+                if (appState.answers[k].isCorrect) correctCount++;
+            });
+
+            document.getElementById('header-progress-text').innerText = `${answeredCount}/${totalQuestions}`;
+            document.getElementById('header-score-text').innerText = correctCount;
+            document.getElementById('answered-count-badge').innerText = `${answeredCount}/${totalQuestions}`;
+
+            const accuracy = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+            document.getElementById('stat-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('stat-correct').innerText = `${correctCount}`;
+
+            // Fill progress bar
+            const pct = (answeredCount / totalQuestions) * 100;
+            document.getElementById('progress-bar-fill').style.width = `${Math.max(pct, 3.33)}%`;
+        }
+
+        function renderQuestionCard() {
+            const qIndex = appState.currentIndex;
+            const q = questionsDB[qIndex];
+            const answerState = appState.answers[qIndex];
+
+            // Render Q number & category
+            document.getElementById('q-num-display').innerText = qIndex + 1;
+            document.getElementById('q-category-badge').innerText = q.category;
+            document.getElementById('q-text').innerHTML = q.question;
+
+            // Bookmark button status
+            const btnBookmark = document.getElementById('btn-bookmark');
+            const isBookmarked = appState.bookmarks.includes(qIndex);
+            if (isBookmarked) {
+                btnBookmark.className = "absolute top-6 right-6 w-9 h-9 rounded-full bg-amber-100 text-amber-500 border border-amber-300 flex items-center justify-center transition shadow-xs";
+            } else {
+                btnBookmark.className = "absolute top-6 right-6 w-9 h-9 rounded-full bg-slate-100 hover:bg-amber-100 text-slate-400 hover:text-amber-500 border border-slate-200 flex items-center justify-center transition";
+            }
+
+            // Render Options
+            const optionsContainer = document.getElementById('options-container');
+            let optionsHtml = '';
+            const labels = ['A', 'B', 'C', 'D'];
+
+            q.options.forEach((optText, optIdx) => {
+                let btnStyle = "border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50/50 text-slate-800";
+                let badgeStyle = "bg-slate-100 text-slate-600 group-hover:bg-sky-500 group-hover:text-white";
+                let iconHtml = '';
+
+                if (answerState) {
+                    const isSelected = answerState.selectedIndex === optIdx;
+                    const isCorrect = q.correctIndex === optIdx;
+
+                    if (isCorrect) {
+                        btnStyle = "border-emerald-500 bg-emerald-50 text-emerald-900 font-bold shadow-xs";
+                        badgeStyle = "bg-emerald-600 text-white";
+                        iconHtml = '<i class="fa-solid fa-circle-check text-emerald-600 text-base ml-auto"></i>';
+                    } else if (isSelected && !isCorrect) {
+                        btnStyle = "border-rose-400 bg-rose-50 text-rose-900 font-bold";
+                        badgeStyle = "bg-rose-500 text-white";
+                        iconHtml = '<i class="fa-solid fa-circle-xmark text-rose-500 text-base ml-auto"></i>';
+                    } else {
+                        btnStyle = "border-slate-200 bg-slate-50/60 text-slate-400 opacity-60";
+                        badgeStyle = "bg-slate-200 text-slate-500";
+                    }
+                }
+
+                optionsHtml += `
+                    <button onclick="handleOptionSelect(${optIdx})" ${answerState ? 'disabled' : ''} 
+                        class="group w-full p-3.5 sm:p-4 rounded-2xl border-2 text-left font-semibold text-xs sm:text-sm transition-all flex items-center gap-3 ${btnStyle} ${answerState ? 'cursor-default' : 'cursor-pointer'}">
+                        <span class="w-7 h-7 rounded-xl font-bold text-xs flex items-center justify-center transition-colors ${badgeStyle}">
+                            ${labels[optIdx]}
+                        </span>
+                        <span class="flex-1">${optText}</span>
+                        ${iconHtml}
+                    </button>
+                `;
+            });
+
+            optionsContainer.innerHTML = optionsHtml;
+
+            // Render Feedback Box
+            const feedbackBox = document.getElementById('feedback-box');
+            if (answerState) {
+                feedbackBox.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-200', 'text-emerald-900', 'bg-rose-50', 'border-rose-200', 'text-rose-900');
+                const titleEl = document.getElementById('feedback-title');
+                const rationaleEl = document.getElementById('feedback-rationale');
+
+                if (answerState.isCorrect) {
+                    feedbackBox.classList.add('bg-emerald-50', 'border-emerald-200', 'text-emerald-900');
+                    titleEl.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Correct Answer!`;
+                } else {
+                    feedbackBox.classList.add('bg-rose-50', 'border-rose-200', 'text-rose-900');
+                    titleEl.innerHTML = `<i class="fa-solid fa-circle-xmark text-rose-600"></i> Incorrect`;
+                }
+                rationaleEl.innerHTML = `<strong>Explanation:</strong> ${q.rationale}`;
+            } else {
+                feedbackBox.classList.add('hidden');
+            }
+
+            // Prev / Next Buttons State
+            document.getElementById('btn-prev').disabled = (qIndex === 0);
+            document.getElementById('btn-next').disabled = (qIndex === questionsDB.length - 1);
+        }
+
+        function handleOptionSelect(optIdx) {
+            const qIndex = appState.currentIndex;
+            if (appState.answers[qIndex]) return; // locked
+
+            const q = questionsDB[qIndex];
+            const isCorrect = (optIdx === q.correctIndex);
+
+            appState.answers[qIndex] = {
+                selectedIndex: optIdx,
+                isCorrect: isCorrect,
+                timestamp: Date.now()
+            };
+
+            saveState();
+            renderAll();
+
+            if (isCorrect && typeof confetti === 'function') {
+                confetti({
+                    particleCount: 40,
+                    spread: 60,
+                    origin: { y: 0.7 }
+                });
+            }
+        }
+
+        function navigateQuestion(direction) {
+            const newIndex = appState.currentIndex + direction;
+            if (newIndex >= 0 && newIndex < questionsDB.length) {
+                appState.currentIndex = newIndex;
+                saveState();
+                renderQuestionCard();
+                renderPalette();
+            }
+        }
+
+        function jumpToQuestion(idx) {
+            if (idx >= 0 && idx < questionsDB.length) {
+                appState.currentIndex = idx;
+                saveState();
+                renderQuestionCard();
+                renderPalette();
+            }
+        }
+
+        function toggleBookmarkCurrent() {
+            const qIndex = appState.currentIndex;
+            const bIdx = appState.bookmarks.indexOf(qIndex);
+            if (bIdx > -1) {
+                appState.bookmarks.splice(bIdx, 1);
+            } else {
+                appState.bookmarks.push(qIndex);
+            }
+            saveState();
+            renderQuestionCard();
+            renderPalette();
+        }
+
+        function setPaletteFilter(filterMode) {
+            appState.filter = filterMode;
+            ['all', 'answered', 'unanswered', 'bookmarked'].forEach(f => {
+                const btn = document.getElementById(`filter-${f}`);
+                if (f === filterMode) {
+                    btn.className = "py-1.5 rounded-lg bg-white text-sky-600 shadow-xs transition";
+                } else {
+                    btn.className = "py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition";
+                }
+            });
+            renderPalette();
+        }
+
+        function renderPalette() {
+            const gridEl = document.getElementById('palette-grid');
+            let gridHtml = '';
+
+            questionsDB.forEach((q, idx) => {
+                const isCurrent = (idx === appState.currentIndex);
+                const answerState = appState.answers[idx];
+                const isBookmarked = appState.bookmarks.includes(idx);
+
+                // Filter check
+                if (appState.filter === 'answered' && !answerState) return;
+                if (appState.filter === 'unanswered' && answerState) return;
+                if (appState.filter === 'bookmarked' && !isBookmarked) return;
+
+                let btnStyle = "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200";
+
+                if (answerState) {
+                    if (answerState.isCorrect) {
+                        btnStyle = "bg-emerald-500 text-white border-emerald-600 shadow-xs";
+                    } else {
+                        btnStyle = "bg-rose-500 text-white border-rose-600 shadow-xs";
+                    }
+                }
+
+                let ringStyle = isCurrent ? "ring-2 ring-sky-500 ring-offset-2 font-bold scale-105" : "";
+
+                gridHtml += `
+                    <button onclick="jumpToQuestion(${idx})" class="relative h-10 rounded-xl border font-mono text-xs transition flex items-center justify-center font-bold ${btnStyle} ${ringStyle}">
+                        ${idx + 1}
+                        ${isBookmarked ? '<span class="absolute -top-1 -right-1 w-3 h-3 bg-amber-400 rounded-full border border-white"></span>' : ''}
+                    </button>
+                `;
+            });
+
+            if (gridHtml === '') {
+                gridHtml = `<div class="col-span-5 text-center text-xs text-slate-400 py-4">No questions match filter</div>`;
+            }
+
+            gridEl.innerHTML = gridHtml;
+        }
+
+        // Initialize App
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            renderAll();
+        });
+    </script>
+</body>
+</html>
